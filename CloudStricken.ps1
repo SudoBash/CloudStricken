@@ -1,4 +1,3 @@
-#Requires -Modules VMware.VimAutomation.Core
 #UNTESTED
 param (
     [string]$hypervisor = "10.10.10.10",
