@@ -85,7 +85,7 @@ fi
 
     # Could manually define machines if you want more control:
     # $machines = @("hostnamehere", "machine1", "machine2")
-    $machines = Get-VM -Name * # Get ALL VM's
+    $machines = Get-VM -Name * # Get ALL Virtual Machines
     
     foreach ($machine in $machines) { # Loop through machines one at a time
         Write-Host "Attempting to Repair $machine"
