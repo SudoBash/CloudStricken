@@ -69,7 +69,7 @@ if [ "$(find /media/drive/Windows/System32/drivers/CrowdStrike/ -maxdepth 1 -nam
     echo "Faulty Cloudstrike Driver Found! Deleting..."
     rm /media/drive/Windows/System32/drivers/CrowdStrike/C-00000291*.sys
 else
-    echo "Faulty Cloudstrike Driver NOT Found! Doing NoThInG!"
+    echo "Faulty Cloudstrike Driver NOT Found! Doing Nothing!"
 fi
 "@
     $session = Connect-Hypervisor   
