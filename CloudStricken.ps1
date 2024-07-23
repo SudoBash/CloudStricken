@@ -88,7 +88,7 @@ fi
         Write-Host "Repairing $machine"
         $vm = Get-VM -name $machine -ErrorAction SilentlyContinue
         $cd = Get-CDDrive -VM $vm
-        Set-CDDrive -CD $cd -ISOPath "[$datastore]\$ISO" -Confirm:$false -StartConnected $true
+        Set-CDDrive -CD $cd -ISOPath "[$datastore]\$ISO" -Confirm:$false -StartConnected $true #Set custom Alpine / CloudStricken.iso to VM's CD Drive
         
         Start-Sleep -Seconds 1
         $power = Start-VM -VM $vm -Confirm:$false -ErrorAction SilentlyContinue
