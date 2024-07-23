@@ -1,11 +1,11 @@
-#UNTESTED BLIND EMERGENCY DEVELOPMENT
+# UNTESTED BLIND EMERGENCY DEVELOPMENT
 param (
-    [string]$hypervisor = "10.10.10.10",
-    [string]$user = "Hypervisor Username", 
-    [string]$pass = "Hypervisor Password", 
-    [string]$datastore = "ISO",
-    [string]$ISO = "CloudStricken.iso", #Standard Alpine with root password set to alpine (must have a password, but alpine defaults to blank, which won't work I don't think #unconfirmed)
-    [switch]$vmware,
+    [string]$hypervisor = "10.10.10.10", # IP of Hypervisor Host
+    [string]$user = "Hypervisor Username", # Hypervisor Root / Administrator Username
+    [string]$pass = "Hypervisor Password", # Hypervisor Root / Administrator Password
+    [string]$datastore = "ISO", # Datastore where you store your ISO files
+    [string]$ISO = "CloudStricken.iso", # Standard Alpine with root password set to alpine (must have a password, but alpine defaults to blank, which won't work I don't think #unconfirmed)
+    [switch]$vmware, # Switches for which hypervisor you have
     [switch]$hyperv,
     [switch]$proxmox,
     [switch]$xen
@@ -16,16 +16,18 @@ Set-StrictMode -Off
 $defaultAutoLoad = $PSMmoduleAutoloadingPreference
 $PSMmoduleAutoloadingPreference = "none"
 
+# Hypervisor imports for Connect / Close Hypervisor
 if($vmware){
     if (Get-Module -ListAvailable -Name VMware*) {
         Import-Module VMware.VimAutomation.Core 2>&1 | out-null
         Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Scope Session -Confirm:$false | Out-Null
     }
 }
-elseif ($hyperv){}
-elseif($proxmox){}
-elseif($xen){}
+elseif ($hyperv){} # Anyone?
+elseif($proxmox){} # Anyone?
+elseif($xen){} # Anyone?
 
+# Universal Connect
 function Connect-Hypervisor {
     $session = Connect-VIServer -Server $hypervisor -User:$user -Pass:$pass 2>&1 | out-null
     Write-Host "Connecting to Hypervisor"
@@ -38,6 +40,7 @@ function Connect-Hypervisor {
     return $session
 }
 
+#Universal Close
 function Close-Hypervisor {
     if($global:DefaultVIServer.name -like $hypervisor){
         Write-Host "Disconnecting from Hypervisor and Cleaning Up..."
@@ -46,8 +49,7 @@ function Close-Hypervisor {
     }
 }
 
-#Bash ScriptBlock that gets executed on each VM Guest through Invoke-VMScript (by the Hypervisor)
-
+# Bash ScriptBlock that gets executed on each VM Guest through Invoke-VMScript (by the Hypervisor)
 $repair_script = @"
 !/bin/bash
 mkdir -p /media/drive
@@ -73,37 +75,38 @@ if [ "$(find /media/drive/Windows/System32/drivers/CrowdStrike/ -maxdepth 1 -nam
     echo "Faulty Cloudstrike Driver Found! Deleting..."
     rm /media/drive/Windows/System32/drivers/CrowdStrike/C-00000291*.sys
 else
-    echo "Faulty Cloudstrike Driver NOT Found! Doing Nothing!"
+    echo "Faulty Cloudstrike Driver NOT Found! Unmounting!"
+    umount /media/drive
 fi
 "@
 
     # Main
-    $session = Connect-Hypervisor   
+    $session = Connect-Hypervisor # Connect to your Hypervisor
 
-    #Could manually define machines if you want more control:
-    #$machines = @("hostname", "machine1", "machine2")
+    # Could manually define machines if you want more control:
+    # $machines = @("hostnamehere", "machine1", "machine2")
     $machines = Get-VM -Name *
     
-    foreach ($machine in $machines) {
-        Write-Host "Repairing $machine"
-        $vm = Get-VM -name $machine -ErrorAction SilentlyContinue
-        $cd = Get-CDDrive -VM $vm
-        Set-CDDrive -CD $cd -ISOPath "[$datastore]\$ISO" -Confirm:$false -StartConnected $true #Set custom Alpine / CloudStricken.iso to VM's CD Drive
+    foreach ($machine in $machines) { # Loop through machines one at a time
+        Write-Host "Attempting to Repair $machine"
+        $vm = Get-VM -name $machine -ErrorAction SilentlyContinue # Get-VM into $vm
+        $cd = Get-CDDrive -VM $vm # Get VM's CD Drive for Set-CDDrive
+        Set-CDDrive -CD $cd -ISOPath "[$datastore]\$ISO" -Confirm:$false -StartConnected $true # Set custom Alpine / CloudStricken.iso to VM's CD Drive
         
-        Start-Sleep -Seconds 1
-        $power = Start-VM -VM $vm -Confirm:$false -ErrorAction SilentlyContinue
-        Start-Sleep -Seconds 10
+        Start-Sleep -Seconds 1 # Sleep for setting change
+        $power = Start-VM -VM $vm -Confirm:$false -ErrorAction SilentlyContinue # power on
+        Start-Sleep -Seconds 10 # Wait for inevitable Boot
 		
-        while ($Power_Task.ExtensionData.Info.State -eq "running") {
-		Start-Sleep 1
-		$Power_Task.ExtensionData.UpdateViewData('Info.State')
+        while ($Power_Task.ExtensionData.Info.State -eq "running") {  # While VM State not equal to running
+		Start-Sleep 1 # Wait 1 extra sec
+		$Power_Task.ExtensionData.UpdateViewData('Info.State') #Update State view data
 	}
 	
-        $repair = Invoke-VMScript -VM $vm -GuestUser "root" -GuestPass "alpine" -ScriptType "Bash" -ScriptText $repair_script #root must have a password for this command to be successful, I believe
+        $repair = Invoke-VMScript -VM $vm -GuestUser "root" -GuestPass "alpine" -ScriptType "Bash" -ScriptText $repair_script # root must have a password for this command to be successful, I believe
 	
-        $shutdown = Shutdown-VMGuest -VM $machine -Confirm:$false -Server $session -ErrorAction SilentlyContinue
-        Set-CDDrive -CD $cd -ISOPath "" -Confirm:$false -StartConnected $false #Reset CD Settings for normal boot
-	#$power = Start-VM -VM $vm -Confirm:$false -ErrorAction SilentlyContinue #Uncomment to auto boot machines back up for normal operation
+        $shutdown = Shutdown-VMGuest -VM $machine -Confirm:$false -Server $session -ErrorAction SilentlyContinue # Shutdown after fix to change settings for next boot
+        Set-CDDrive -CD $cd -ISOPath "" -Confirm:$false -StartConnected $false # Reset CD Settings for normal boot
+	#$power = Start-VM -VM $vm -Confirm:$false -ErrorAction SilentlyContinue # Uncomment this to auto boot machines back up for normal operation
     }
 
     Close-Hypervisor
