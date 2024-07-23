@@ -4,7 +4,7 @@ param (
     [string]$user = "Hypervisor Username", 
     [string]$pass = "Hypervisor Password", 
     [string]$datastore = "ISO",
-    [string]$ISO = "Meritorious.iso",
+    [string]$ISO = "CloudStricken.iso",
     [switch]$vmware,
     [switch]$hyperv,
     [switch]$proxmox,
