@@ -61,6 +61,8 @@ for device_info in "${devices[@]}"; do
     fi
 done
 
+#Could move this all into the above loop to attempt the fix on all discovered NTFS / VFAT drives instead of first discovered since it searches for the file.
+
 echo "Attempting to mount suspected Windows Partition: $device_path"
 
 mount -t $device_type $device_path /media/drive
