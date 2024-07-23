@@ -24,6 +24,11 @@ Feedback and contributions to improve this script are welcome but will be subjec
 By using this script, you acknowledge that you have read, understood, and agree to these terms and conditions.
 -
 
+Shoutout to Roush for being a constant source of encouragement, inspiration and seemingly endless knowledge!
+
+Instructions
+-
+
 Download or Build CloudStricken Alpine ISO (Coming)
 
 Transfer CloudStricken.iso to ISO Datastore
