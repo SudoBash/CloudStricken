@@ -27,7 +27,7 @@ By using this script, you acknowledge that you have read, understood, and agree 
 Instructions
 -
 
-Download or Build CloudStricken Alpine ISO (Coming)
+Download or Build CloudStricken Alpine ISO (Coming) (Alpine Standard with root password set to alpine)
 
 Transfer CloudStricken.iso to ISO Datastore
 
