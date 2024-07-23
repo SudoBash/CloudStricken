@@ -80,7 +80,7 @@ fi
     # Main
     $session = Connect-Hypervisor   
 
-    #Could manually define machines if you have want more control:
+    #Could manually define machines if you want more control:
     #$machines = @("hostname", "machine1", "machine2")
     $machines = Get-VM -Name *
     
