@@ -1,4 +1,4 @@
-#UNTESTED
+#UNTESTED BLIND EMERGENCY DEVELOPMENT
 param (
     [string]$hypervisor = "10.10.10.10",
     [string]$user = "Hypervisor Username", 
@@ -77,6 +77,7 @@ else
 fi
 "@
 
+    # Main
     $session = Connect-Hypervisor   
     
     $machines = Get-VM -Name *
@@ -92,14 +93,15 @@ fi
         Start-Sleep -Seconds 10
 		
         while ($Power_Task.ExtensionData.Info.State -eq "running") {
-			Start-Sleep 1
-			$Power_Task.ExtensionData.UpdateViewData('Info.State')
-		}
-
-        $repair = Invoke-VMScript -VM $vm -GuestUser "root" -GuestPass "alpine" -ScriptType "Bash" -ScriptText $repair_script
+		Start-Sleep 1
+		$Power_Task.ExtensionData.UpdateViewData('Info.State')
+	}
+	
+        $repair = Invoke-VMScript -VM $vm -GuestUser "root" -GuestPass "alpine" -ScriptType "Bash" -ScriptText $repair_script #root must have a password for this command to be successful, I believe
+	
         $shutdown = Shutdown-VMGuest -VM $machine -Confirm:$false -Server $session -ErrorAction SilentlyContinue
-        Start-Sleep 1
-        Set-CDDrive -CD $cd -ISOPath "" -Confirm:$false -StartConnected $false
+        Set-CDDrive -CD $cd -ISOPath "" -Confirm:$false -StartConnected $false #Reset CD Settings for normal boot
+	#$power = Start-VM -VM $vm -Confirm:$false -ErrorAction SilentlyContinue #Uncomment to auto boot machines back up for normal operation
     }
 
     Close-Hypervisor
