@@ -46,6 +46,8 @@ function Close-Hypervisor {
     }
 }
 
+#ScriptBlock that gets executed on each VM Guest through Invoke-VMScript (by the Hypervisor)
+
 $repair_script = @"
 !/bin/bash
 mkdir -p /media/drive
@@ -73,7 +75,9 @@ else
     echo "Faulty Cloudstrike Driver NOT Found! Doing Nothing!"
 fi
 "@
+
     $session = Connect-Hypervisor   
+    
     $machines = Get-VM -Name *
     
     foreach ($machine in $machines) {
