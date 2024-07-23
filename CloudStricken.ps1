@@ -4,7 +4,7 @@ param (
     [string]$user = "Hypervisor Username", 
     [string]$pass = "Hypervisor Password", 
     [string]$datastore = "ISO",
-    [string]$ISO = "CloudStricken.iso",
+    [string]$ISO = "CloudStricken.iso", #Standard Alpine with root password set to alpine (must have a password, but alpine defaults to blank, which won't work I don't think #unconfirmed)
     [switch]$vmware,
     [switch]$hyperv,
     [switch]$proxmox,
