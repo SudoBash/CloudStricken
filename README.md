@@ -1,8 +1,8 @@
-# CloudStricken: Experimental Cloudstrike Solution
+# CloudStricken: Experimental Crowdstrike Solution
 
 ## Experimental Nature of Script:
 
-This script is provided on an experimental basis and is not guaranteed to resolve issues related to Cloudstrike or any associated outages. 
+This script is provided on an experimental basis and is not guaranteed to resolve issues related to Crowdstrike or any associated outages. 
 It is offered "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. 
 The script may not be suitable for production environments or critical systems.
 
