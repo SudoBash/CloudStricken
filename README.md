@@ -1,4 +1,4 @@
-# CloudStricken: Experimental Crowdstrike Solution
+# CloudStricken: Experimental Crowdstrike Solution utilizing Infrastructure Orchestration
 
 If this helps you, please consider donating with Cash App to $SudoBashX
 
